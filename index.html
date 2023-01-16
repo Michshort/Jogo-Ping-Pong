@@ -9,46 +9,143 @@
 <body>
     <canvas></canvas>
     <script>
+        const mouse = { x: 0, y: 0};
+
         const canvasEl = document.querySelector("canvas"),
             canvasCtx = canvasEl.getContext("2d"),
             gapX = 10;
         
-        const lineWidth = 15;
+        
+        const field = {
+            w: window.innerWidth,
+            h: window.innerHeight,
+            draw: function(){
+                //desenho do campo
+                canvasCtx.fillStyle = "#286047";
+                canvasCtx.fillRect(0, 0, this.w, this.h );
+
+            }
+        };
+
+        const line = {
+            //desenho da linha central
+            w: 15,
+            h: field.h,
+            draw: function() {
+                canvasCtx.fillStyle = "#ffffff";
+                canvasCtx.fillRect(field.w / 2 - this.w / 2, 0, this.w, this.h);
+
+            },
+        };
+
+        const leftPaddle = {
+            x: gapX,
+            y: field.h / 2,
+            w: line.w,
+            h: 200,
+            _move: function() {
+                this.y = mouse.y;
+            },
+            draw: function() {
+                // desenho da raquete esquerda
+                canvasCtx.fillStyle = "#ffffff";
+                canvasCtx.fillRect(this.x, this.y, this.w, this.h)
+
+                this._move();
+            }
+        };
+
+        const rightPaddle = {
+            x: field.w - line.w - gapX,
+            y: field.h / 2,
+            w: line.w,
+            h: 200,
+            _move: function(){
+                this.y = ball.y
+            },
+            draw: function() {
+                // desenho da raquete direita
+                canvasCtx.fillStyle = "#ffffff";
+                canvasCtx.fillRect(this.x, this.y, this.w, this.h)
+
+                this._move();
+            }
+        };
+
+        const ball = {
+            x: field.w / 2,
+            y: field.h / 2,
+            r: 20,
+            speed: 5,
+            directionX: 1,
+            directionY: 1,
+            _calcPosition: function () { 
+                if (this.y > field.h) {
+                }
+            },
+
+            _reverseY: function () {
+                this.directionY = this.directionY * -1;
+            },
+
+            _move: function() {
+                this.x += this.directionX * this.speed
+                this.y += this.directionY * this.speed
+            },
+            
+            draw: function() {
+                // desenho da bola
+                canvasCtx.fillStyle = "#ffffff";
+                canvasCtx.beginPath();
+                canvasCtx.arc(this.x, this.y, this.r, 0, 2*Math.PI, false);
+                canvasCtx.fill();
+
+                 this._move();
+            }
+        };
 
         function setup() { 
-            
             canvasEl.width = window.innerWidth = window.innerWidth;
             canvasEl.height = window.innerHeight = window.innerHeight;
         }
 
         function draw() {
-            //desenho do camp
-            canvasCtx.fillStyle = "#286047";
-            canvasCtx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-
-            //desenho da linha central
-            canvasCtx.fillStyle = "#ffffff";
-            canvasCtx.fillRect(window.innerWidth / 2 - lineWidth / 2, 0, lineWidth, window.innerHeight);
+            field.draw();
+            line.draw();      
             
-            
-            // desenho da raquete esquerda
-            canvasCtx.fillStyle = "#ffffff";
-            canvasCtx.fillRect(gapX, 240, lineWidth, 200);
+            leftPaddle.draw();
+            rightPaddle.draw();
 
-            // desenho da raquete Direita
-            canvasCtx.fillStyle = "#ffffff";
-            canvasCtx.fillRect(window.innerWidth - lineWidth - gapX,
-            200, lineWidth, 200);
+            ball.draw();
+        };
 
-            // desenho da bola
-            canvasCtx.fillStyle = "#ffffff";
-            canvasCtx.beginPath();
-            canvasCtx.arc(120, 240, 20, 0, 2*Math.PI, false);
-            canvasCtx.fill();
-        }
+
+        window.animateFrame = (function() {
+            return (
+                window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                function(callback) {
+                    return window.setTimeout(callback, 1000/60);
+                }
+            )
+        }) ()
+
+        function main() {
+            animateFrame(main);
+            draw();
+        };
 
         setup();
-        draw();
+        main();
+
+
+        canvasEl.addEventListener("mousemove", function (e) {
+            mouse.x = e.pageX;
+            mouse.y = e.pageY;
+        })
 
     </script>
 </body>
